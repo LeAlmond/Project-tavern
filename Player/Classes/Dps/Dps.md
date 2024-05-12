@@ -1,4 +1,0 @@
-[[Fighter]]
-[[Wizard]]
-[[Rogue]]
-[[Ranger]]

@@ -1,2 +1,0 @@
-[[Cleric]]
-[[Bard]]
