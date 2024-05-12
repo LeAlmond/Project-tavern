@@ -1,0 +1,5 @@
+[[Hunger]]
+[[Thirst]]
+[[Inventory]]
+[[Classes]]
+[[Skills]]

@@ -135,11 +135,58 @@ public class FPSController : MonoBehaviour
         input.input.Block.performed += ctx => animator.SetBool("Blocking", true);
         input.input.Block.canceled += ctx => animator.SetBool("Blocking", false);
 
+        input.input.Ledger.performed += ctx => ledgerAction();
+
+        input.input.Compass.performed += ctx => compassAction();
+
+        input.input.Map.performed += ctx => mapAction();
+
+        input.input.Settings.performed += ctx => settingsAction();
+
         //input.input.Heal.performed += ctx => animator.SetBool("Healing", true);
         input.input.Heal.performed += ctx => animator.SetTrigger("HealTrigger");
         //input.input.Heal.canceled += ctx => animator.SetBool("Healing", false);
 
         input.input.Inventory.performed += ctx => animator.SetBool("AccessingInventory", !animator.GetBool("AccessingInventory"));
+    }
+
+    private void togglemapCompass()
+    {
+        animator.SetBool("Ready", false);
+        animator.SetBool("Ledger", false);
+    }
+    private void toggleActions()
+    {
+        animator.SetBool("Ready", false);
+        animator.SetBool("Ledger", false);
+        animator.SetBool("Map", false);
+        animator.SetBool("Compass", false);
+    }
+
+    private void settingsAction()
+    {
+        toggleActions();
+        animator.SetBool("Settings", !animator.GetBool("Settings"));
+    }
+
+    private void mapAction()
+    {
+        togglemapCompass();
+        animator.SetBool("Map", !animator.GetBool("Map"));
+    }
+
+    private void compassAction()
+    {
+        togglemapCompass();
+        animator.SetBool("Compass", !animator.GetBool("Compass"));
+    }
+
+    private void ledgerAction()
+    {
+        animator.SetBool("Ready", false);
+        animator.SetBool("Map", false);
+        animator.SetBool("Compass", false);
+        animator.SetBool("Ledger", !animator.GetBool("Ledger"));
     }
 
     // Update is called once per frame

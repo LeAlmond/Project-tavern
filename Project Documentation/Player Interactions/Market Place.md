@@ -1,0 +1,1 @@
+only Items Found in dungeons can be sold on the marketplace

@@ -1,0 +1,2 @@
+[[Stash]]
+[[Crafting Equimpment]]

@@ -98,6 +98,42 @@ public partial class @FPSControllerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Ledger"",
+                    ""type"": ""Button"",
+                    ""id"": ""b3f8a35a-2c5e-4494-b238-b7dc88f43af9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Settings"",
+                    ""type"": ""Button"",
+                    ""id"": ""e3b6c335-ee71-44bd-9c0d-a17ece94217e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Compass"",
+                    ""type"": ""Button"",
+                    ""id"": ""ee1f788f-1078-4f83-b15b-29e35d3b9463"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Map"",
+                    ""type"": ""Button"",
+                    ""id"": ""2ed4eaec-0f05-4191-9b41-07b38f569b2b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -232,6 +268,50 @@ public partial class @FPSControllerInputs: IInputActionCollection2, IDisposable
                     ""action"": ""Heal"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bb98b66c-a966-494b-9f30-40bbf1bb5c71"",
+                    ""path"": ""<Keyboard>/j"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ledger"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d384d367-5bf6-4df7-92f8-fc5a29ba328e"",
+                    ""path"": ""<Keyboard>/backquote"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Settings"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e8b57808-c9f9-4267-922e-6a624d8fe5c5"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Compass"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a5b31b3f-4dab-4b1e-8dea-e160d14e6c35"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Map"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -248,6 +328,10 @@ public partial class @FPSControllerInputs: IInputActionCollection2, IDisposable
         m_Player_Vertical = m_Player.FindAction("Vertical", throwIfNotFound: true);
         m_Player_Inventory = m_Player.FindAction("Inventory", throwIfNotFound: true);
         m_Player_Heal = m_Player.FindAction("Heal", throwIfNotFound: true);
+        m_Player_Ledger = m_Player.FindAction("Ledger", throwIfNotFound: true);
+        m_Player_Settings = m_Player.FindAction("Settings", throwIfNotFound: true);
+        m_Player_Compass = m_Player.FindAction("Compass", throwIfNotFound: true);
+        m_Player_Map = m_Player.FindAction("Map", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -317,6 +401,10 @@ public partial class @FPSControllerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Vertical;
     private readonly InputAction m_Player_Inventory;
     private readonly InputAction m_Player_Heal;
+    private readonly InputAction m_Player_Ledger;
+    private readonly InputAction m_Player_Settings;
+    private readonly InputAction m_Player_Compass;
+    private readonly InputAction m_Player_Map;
     public struct PlayerActions
     {
         private @FPSControllerInputs m_Wrapper;
@@ -329,6 +417,10 @@ public partial class @FPSControllerInputs: IInputActionCollection2, IDisposable
         public InputAction @Vertical => m_Wrapper.m_Player_Vertical;
         public InputAction @Inventory => m_Wrapper.m_Player_Inventory;
         public InputAction @Heal => m_Wrapper.m_Player_Heal;
+        public InputAction @Ledger => m_Wrapper.m_Player_Ledger;
+        public InputAction @Settings => m_Wrapper.m_Player_Settings;
+        public InputAction @Compass => m_Wrapper.m_Player_Compass;
+        public InputAction @Map => m_Wrapper.m_Player_Map;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -362,6 +454,18 @@ public partial class @FPSControllerInputs: IInputActionCollection2, IDisposable
             @Heal.started += instance.OnHeal;
             @Heal.performed += instance.OnHeal;
             @Heal.canceled += instance.OnHeal;
+            @Ledger.started += instance.OnLedger;
+            @Ledger.performed += instance.OnLedger;
+            @Ledger.canceled += instance.OnLedger;
+            @Settings.started += instance.OnSettings;
+            @Settings.performed += instance.OnSettings;
+            @Settings.canceled += instance.OnSettings;
+            @Compass.started += instance.OnCompass;
+            @Compass.performed += instance.OnCompass;
+            @Compass.canceled += instance.OnCompass;
+            @Map.started += instance.OnMap;
+            @Map.performed += instance.OnMap;
+            @Map.canceled += instance.OnMap;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -390,6 +494,18 @@ public partial class @FPSControllerInputs: IInputActionCollection2, IDisposable
             @Heal.started -= instance.OnHeal;
             @Heal.performed -= instance.OnHeal;
             @Heal.canceled -= instance.OnHeal;
+            @Ledger.started -= instance.OnLedger;
+            @Ledger.performed -= instance.OnLedger;
+            @Ledger.canceled -= instance.OnLedger;
+            @Settings.started -= instance.OnSettings;
+            @Settings.performed -= instance.OnSettings;
+            @Settings.canceled -= instance.OnSettings;
+            @Compass.started -= instance.OnCompass;
+            @Compass.performed -= instance.OnCompass;
+            @Compass.canceled -= instance.OnCompass;
+            @Map.started -= instance.OnMap;
+            @Map.performed -= instance.OnMap;
+            @Map.canceled -= instance.OnMap;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -417,5 +533,9 @@ public partial class @FPSControllerInputs: IInputActionCollection2, IDisposable
         void OnVertical(InputAction.CallbackContext context);
         void OnInventory(InputAction.CallbackContext context);
         void OnHeal(InputAction.CallbackContext context);
+        void OnLedger(InputAction.CallbackContext context);
+        void OnSettings(InputAction.CallbackContext context);
+        void OnCompass(InputAction.CallbackContext context);
+        void OnMap(InputAction.CallbackContext context);
     }
 }

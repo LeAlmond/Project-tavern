@@ -1,0 +1,198 @@
+{
+  "main": {
+    "id": "5d84adb980b7c1a5",
+    "type": "split",
+    "children": [
+      {
+        "id": "23fc98c1cabf81d0",
+        "type": "tabs",
+        "dimension": 27.79187817258883,
+        "children": [
+          {
+            "id": "e7129564147bdb60",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {}
+            }
+          }
+        ]
+      },
+      {
+        "id": "45c2dcdc578be7d6",
+        "type": "tabs",
+        "dimension": 72.20812182741116,
+        "children": [
+          {
+            "id": "06fea2f35ff829f5",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "41d40b28f0458918",
+    "type": "split",
+    "children": [
+      {
+        "id": "cd26eb55dfdb9b79",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0bce8635ea82921a",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "ef7b0fe7c2a45e2f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "32f04e28f48d9840",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "f3a14344c8f3abdd",
+    "type": "split",
+    "children": [
+      {
+        "id": "ab0b5880773e924e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "40c56c96e35e8c7a",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "bc09f83b8dac9fbf",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "2a1a84b1212cf91e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "f5ab5d5ef517eca1",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Tavern.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "graph:Open graph view": false
+    }
+  },
+  "active": "06fea2f35ff829f5",
+  "lastOpenFiles": [
+    "Tavern.md",
+    "Quest/Quest.md",
+    "Quest/Quest Board.md",
+    "Quest/Item Recovery Quest.md",
+    "Quest/Elite Monster Quest.md",
+    "Quest/Bounties.md",
+    "Quest/Pest Control Quest.md",
+    "Quest",
+    "Player Interactions/Player Interactions.md",
+    "Player Interactions/Parties.md",
+    "Player Interactions/Market Place.md",
+    "Player Interactions/Mini-games.md",
+    "Player Interactions",
+    "Player/Classes/Dps/Wizard.md",
+    "Player/Classes/Dps/Rogue.md",
+    "Player/Classes/Dps/Ranger.md",
+    "Player/Classes/Dps/Fighter.md",
+    "Player/Classes/Dps/Dps.md",
+    "Player/Classes/Tanks/Tank.md",
+    "Player/Classes/Tanks/Paladin.md",
+    "Player/Classes/Healer/Healer.md",
+    "Player/Classes/Healer/Cleric.md",
+    "Player/Classes/Healer/Bard.md",
+    "Player/Classes/Tanks/Barbarian.md",
+    "Player/Classes/Dps",
+    "Player/Classes/Tanks",
+    "Player/Classes/Classes.md",
+    "Player/Classes/Healer",
+    "Player/Thirst.md",
+    "Player/Skills.md",
+    "Player/Player Character.md",
+    "Player/Classes",
+    "Player",
+    "Inn",
+    "Independent Hub Area",
+    "Guilds"
+  ]
+}
