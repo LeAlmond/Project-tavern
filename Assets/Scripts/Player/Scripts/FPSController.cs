@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,7 +24,6 @@ public class FPSController : MonoBehaviour
         public PlayerAnimationScript playerAnimationScript { get; private set; }
         public Animator animator { get; private set; }
     #endregion
-
 
     #region Movement Variables
 
@@ -96,12 +96,19 @@ public class FPSController : MonoBehaviour
         Vector3 swayPos;
         Vector3 swayEulerRot;
 
-    #endregion
+        #endregion
     #endregion
 
     #region Ground Check Variables
     [Header("Ground Check Variables")]
         public LayerMask groundMask;
+    #endregion
+
+    #region Ground Check Variables
+    [Header("Lock On Variables")]
+        private Boolean lockedOn = false;
+        private Transform lockOnTarget;
+        public float lockonTime = 1f;
     #endregion
 
     private void Awake()
@@ -142,6 +149,8 @@ public class FPSController : MonoBehaviour
         input.input.Map.performed += ctx => mapAction();
 
         input.input.Settings.performed += ctx => settingsAction();
+
+        input.input.LockOn.performed += ctx => LockOn();
 
         //input.input.Heal.performed += ctx => animator.SetBool("Healing", true);
         input.input.Heal.performed += ctx => animator.SetTrigger("HealTrigger");
@@ -201,10 +210,60 @@ public class FPSController : MonoBehaviour
 
         applySway();
 
+        if (lockedOn)
+        {
+            Vector3 lockOnTargetPosition = lockOnTarget.position - transform.position;
+            lockOnTargetPosition.Normalize();
+            lockOnTargetPosition.y = 0;
+            Quaternion lockOnTargetRotation = Quaternion.LookRotation(lockOnTargetPosition);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lockOnTargetRotation, lockonTime);
+
+            lockOnTargetPosition = lockOnTarget.position - playerCamera.transform.position;
+            lockOnTargetPosition.Normalize();
+            lockOnTargetRotation = Quaternion.LookRotation(lockOnTargetPosition);
+            playerCamera.transform.rotation = Quaternion.Slerp(playerCamera.transform.rotation, lockOnTargetRotation, lockonTime);
+
+        }
+
         if (Input.GetButtonDown("Jump") && readyToJump == true)
         {
             jump();
         }
+    }
+
+    private void getMouseDirection()
+    {
+        Vector2 attackDirection = lookInput;
+        attackDirection.Normalize();
+        if (Mathf.Abs(attackDirection.x)> Mathf.Abs(attackDirection.y))
+        {
+            //Debug.Log("Horizontal Swing");
+            if (attackDirection.x > 0)
+            {
+                animator.SetInteger("Attack Direction", 2);
+            }
+            else
+            {
+                animator.SetInteger("Attack Direction", -1);
+            }
+           
+        }
+        else if (Mathf.Abs(attackDirection.x) < Mathf.Abs(attackDirection.y))
+        {
+            //Debug.Log("Vertical Swing");
+            if (attackDirection.y > 0)
+            {
+                animator.SetInteger("Attack Direction", 1);
+            }
+            else
+            {
+                animator.SetInteger("Attack Direction", 0);
+            }
+        }else
+        {
+            animator.SetInteger("Attack Direction", 2);
+        }
+        
     }
 
     private void checkGround()
@@ -228,7 +287,7 @@ public class FPSController : MonoBehaviour
         //moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         moveInput = moveInput.normalized;
         //Debug.Log("Input Input: " + input.input.Movement.ReadValue<Vector2>());
-        Debug.Log("Move Input: " + moveInput);
+        //Debug.Log("Move Input: " + moveInput);
 
         // Adjust camera tilt based on sprinting
         float targetCameraTiltMultiplier = isWalking ? cameraTiltMultiplier : cameraTiltMultiplier - 5;
@@ -273,6 +332,8 @@ public class FPSController : MonoBehaviour
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0f, cameraZTilt);
         playerCamera.fieldOfView = cameraFOV;
         transform.Rotate(Vector3.up * lookInput.x);
+
+        getMouseDirection();
     }
 
     private void applySway()
@@ -332,7 +393,7 @@ public class FPSController : MonoBehaviour
         swayEulerRot = new Vector3(invertLook.y, invertLook.x, invertLook.x);
     }
 
-    void BobOffset()
+    private void BobOffset()
     {
         speedCurve += Time.deltaTime * (isGrounded ? (moveInput.x + moveInput.y) * bobExaggeration : 1f) + 0.01f;
 
@@ -341,11 +402,39 @@ public class FPSController : MonoBehaviour
         bobPosition.z = -(moveInput.y * travelLimit.z);
     }
 
-    void BobRotation()
+    private void BobRotation()
     {
         bobEulerRotation.x = (moveInput != Vector2.zero ? multiplier.x * (Mathf.Sin(2 * speedCurve)) : multiplier.x * (Mathf.Sin(2 * speedCurve) / 2));
         bobEulerRotation.y = (moveInput != Vector2.zero ? multiplier.y * curveCos : 0);
         bobEulerRotation.z = (moveInput != Vector2.zero ? multiplier.z * curveCos * moveInput.x : 0);
     }
 
+    private void LockOn()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, 100.0f))
+        {
+            if (hit.transform.Find("LockOnTarget") != null)
+            {
+                Transform lockOnTargetTransform = hit.transform.Find("LockOnTarget");
+                try
+                {
+                    lockOnTarget = lockOnTargetTransform;
+                }
+                catch (Exception e)
+                {
+                    lockOnTarget = hit.transform;
+                    Debug.Log("Error: " + e);
+                }
+
+                lockedOn = !lockedOn;
+
+            }
+            else
+            {
+                lockedOn = false;
+            }
+        }
+       
+    }
 }
