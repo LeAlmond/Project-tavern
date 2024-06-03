@@ -5,12 +5,13 @@ using Unity.VisualScripting;
 using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Windows;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(PlayerInput))]
 public class FPSController : MonoBehaviour
 {
-    CharacterController characterController;
+    Rigidbody playerRigidbody;
 
     #region Components
     [Header("Components")]
@@ -30,22 +31,24 @@ public class FPSController : MonoBehaviour
     private Vector2 moveInput;
 
         private float initialJumpVelocity;
-        private float maxJumpHeight = 1f;
-        private float maxJumpTime = 0.5f;
+        public float maxJumpHeight = 50f;
+        private float maxJumpTime = 1f;
         private bool readyToJump;
 
-        private bool canMove = true;
+        public float dashStrength = 50f;
+
         private bool isWalking = true;
         private bool isGrounded;
 
         private Vector3 velocity;
 
+        private Vector3 direction;
+
     [Header("Movement Variables")]
 
-        public float walkSpeed = 3f;
-        public float runSpeed = 5f;
+        public float walkSpeed = 6f;
+        public float runSpeed = 10f;
 
-        public float gravity = -13f;
         public float airControl = 1f;
     #endregion
 
@@ -56,6 +59,7 @@ public class FPSController : MonoBehaviour
         private float cameraZTilt = 0;
         private float cameraFOV;
         private float rotationX;
+        private float rotationY;
 
     [Header("Camera Variables")]
 
@@ -99,12 +103,7 @@ public class FPSController : MonoBehaviour
         #endregion
     #endregion
 
-    #region Ground Check Variables
-    [Header("Ground Check Variables")]
-        public LayerMask groundMask;
-    #endregion
-
-    #region Ground Check Variables
+    #region Lockon Variables
     [Header("Lock On Variables")]
         private Boolean lockedOn = false;
         private Transform lockOnTarget;
@@ -117,21 +116,31 @@ public class FPSController : MonoBehaviour
         if (bobExaggeration == 0) bobExaggeration = walkSpeed * 2;
         multiplier = new Vector3(1, 2, 1);
 
-        animator = GetComponentInChildren<Animator>();
+        animator = playerCamera.GetComponentInChildren<Animator>();
     }
 
     // Start is called before the first frame update
-    void Start() { 
-        characterController = GetComponent<CharacterController>();
+    void Start() {
+
+        playerRigidbody = GetComponent<Rigidbody>();
+        input = GetComponent<PlayerInput>();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
         float timeToApex = maxJumpTime / 2;
         initialJumpVelocity = (2 * maxJumpHeight) / timeToApex;
 
-        input = GetComponent<PlayerInput>();
+        
         input.input.Movement.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         input.input.Movement.canceled += ctx => moveInput = ctx.ReadValue<Vector2>();
+
+        input.input.Sprint.performed += ctx => isWalking = false;
+        input.input.Sprint.canceled += ctx => isWalking = true;
+
+        input.input.Jump.performed += ctx => jump();
+
+        input.input.Dash.performed += ctx => dash();
 
         input.input.Block.canceled += ctx => animator.SetBool("Blocking", false);
         input.input.Ready.performed += ctx => animator.SetBool("Ready", !animator.GetBool("Ready"));
@@ -164,6 +173,7 @@ public class FPSController : MonoBehaviour
         animator.SetBool("Ready", false);
         animator.SetBool("Ledger", false);
     }
+
     private void toggleActions()
     {
         animator.SetBool("Ready", false);
@@ -201,40 +211,18 @@ public class FPSController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        checkGround();
-
         movePlayer();
 
         controlCamera();
 
         applySway();
 
-        if (lockedOn)
-        {
-            Vector3 lockOnTargetPosition = lockOnTarget.position - transform.position;
-            lockOnTargetPosition.Normalize();
-            lockOnTargetPosition.y = 0;
-            Quaternion lockOnTargetRotation = Quaternion.LookRotation(lockOnTargetPosition);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lockOnTargetRotation, lockonTime);
-
-            lockOnTargetPosition = lockOnTarget.position - playerCamera.transform.position;
-            lockOnTargetPosition.Normalize();
-            lockOnTargetRotation = Quaternion.LookRotation(lockOnTargetPosition);
-            playerCamera.transform.rotation = Quaternion.Slerp(playerCamera.transform.rotation, lockOnTargetRotation, lockonTime);
-
-        }
-
-        if (Input.GetButtonDown("Jump") && readyToJump == true)
-        {
-            jump();
-        }
+        checkGround();
     }
 
     private void getMouseDirection()
     {
         Vector2 attackDirection = lookInput;
-        attackDirection.Normalize();
         if (Mathf.Abs(attackDirection.x)> Mathf.Abs(attackDirection.y))
         {
             //Debug.Log("Horizontal Swing");
@@ -242,7 +230,7 @@ public class FPSController : MonoBehaviour
             {
                 animator.SetInteger("Attack Direction", 2);
             }
-            else
+            else if (attackDirection.x < 0)
             {
                 animator.SetInteger("Attack Direction", -1);
             }
@@ -255,42 +243,21 @@ public class FPSController : MonoBehaviour
             {
                 animator.SetInteger("Attack Direction", 1);
             }
-            else
+            else if (attackDirection.y < 0)
             {
                 animator.SetInteger("Attack Direction", 0);
             }
-        }else
-        {
-            animator.SetInteger("Attack Direction", 2);
         }
         
-    }
-
-    private void checkGround()
-    {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, characterController.height * 0.5f + 0.2f, groundMask);
-        if (isGrounded)
-        {
-            velocity.y = -2f;
-            readyToJump = true;
-        } else
-        {
-            velocity.y += gravity * Time.deltaTime;
-            characterController.Move(velocity * Time.deltaTime);
-        }
     }
 
     private void movePlayer()
     {
 
-        //moveInput = input.input.Movement.ReadValue<Vector2>();
-        //moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        moveInput = moveInput.normalized;
-        //Debug.Log("Input Input: " + input.input.Movement.ReadValue<Vector2>());
-        //Debug.Log("Move Input: " + moveInput);
+        direction = transform.forward * moveInput.y + transform.right * moveInput.x;
 
         // Adjust camera tilt based on sprinting
-        float targetCameraTiltMultiplier = isWalking ? cameraTiltMultiplier : cameraTiltMultiplier - 5;
+        float targetCameraTiltMultiplier = isWalking ? cameraTiltMultiplier : cameraTiltMultiplier - 2;
 
         // Calculate target camera tilt based on input
         float targetCameraZTilt = moveInput.x * targetCameraTiltMultiplier;
@@ -303,37 +270,111 @@ public class FPSController : MonoBehaviour
         cameraFOV = Mathf.Lerp(cameraFOV, defaultCameraFOV + (moveInput.y * cameraFovMultiplier), cameraTiltSmoothTime * Time.deltaTime);
 
         // Calculate movement direction
-        Vector3 direction = transform.forward * moveInput.y + transform.right * moveInput.x;
+        
 
-        // Move character controller
-        characterController.Move(direction * (isWalking ? walkSpeed : runSpeed) * Time.deltaTime);
-    }
-
-    private void jump()
-    {
         if (isGrounded)
         {
-            readyToJump = false;
-            isGrounded = false;
-            velocity.y = 25f;
-            Console.WriteLine("Jumped: " + initialJumpVelocity);
+            playerRigidbody.AddForce(direction.x * (isWalking ? walkSpeed : runSpeed), playerRigidbody.velocity.y, direction.z * (isWalking ? walkSpeed : runSpeed));
+        }else
+        {
+            playerRigidbody.AddForce(direction.x * airControl, 0, direction.z * airControl);
         }
+    }
+
+    private void checkGround()
+    {
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, 2 * 0.5f + 0.2f);
+        GetComponent<Rigidbody>().drag = isGrounded ? 2 : 0;
+
+        Vector3 flatVel = new Vector3(GetComponent<Rigidbody>().velocity.x, 0f, GetComponent<Rigidbody>().velocity.z);
+
+        if (isGrounded)
+        {
+            if (isWalking)
+            {
+                if (flatVel.magnitude > walkSpeed)
+                {
+                    GetComponent<Rigidbody>().velocity = new Vector3(flatVel.normalized.x * walkSpeed, GetComponent<Rigidbody>().velocity.y, flatVel.normalized.z * walkSpeed);
+                }
+            }
+            else
+            {
+                if (flatVel.magnitude > runSpeed)
+                {
+                    GetComponent<Rigidbody>().velocity = new Vector3(flatVel.normalized.x * runSpeed, GetComponent<Rigidbody>().velocity.y, flatVel.normalized.z * runSpeed);
+                }
+            }
+        }
+        
+        
+        
+    }
+    
+    private void jump()
+    {
+        
+        if (isGrounded)
+        {
+            GetComponent<Rigidbody>().velocity = new Vector3(GetComponent<Rigidbody>().velocity.x, 0f, GetComponent<Rigidbody>().velocity.z);
+            GetComponent<Rigidbody>().AddForce(transform.up * initialJumpVelocity, ForceMode.Impulse);
+        }
+
+    }
+
+    private void dash()
+    {
+        direction = transform.forward * moveInput.y + transform.right * moveInput.x;
+
+        if (isGrounded)
+        {
+            GetComponent<Rigidbody>().AddForce(direction.x * dashStrength, 100f, direction.z * dashStrength, ForceMode.Acceleration);
+        }
+       
 
     }
 
     private void controlCamera()
     {
         lookInput = 
-        new Vector2(input.input.Horizontal.ReadValue<float>() * lookSpeed * Time.deltaTime, input.input.Vertical.ReadValue<float>() * lookSpeed * Time.deltaTime);
-
+        new Vector2(input.input.Horizontal.ReadValue<float>() * Time.deltaTime * lookSpeed, input.input.Vertical.ReadValue<float>() * Time.deltaTime * lookSpeed);
+        
         rotationX -= lookInput.y;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
 
-        playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0f, cameraZTilt);
-        playerCamera.fieldOfView = cameraFOV;
-        transform.Rotate(Vector3.up * lookInput.x);
+        rotationY += lookInput.x;
 
         getMouseDirection();
+
+        Vector3 playerCameraTilted = new Vector3(rotationX, rotationY, cameraZTilt);
+
+        if (lockedOn)
+        {
+            Vector3 lockOnTargetPosition = lockOnTarget.position - transform.position;
+            lockOnTargetPosition.Normalize();
+            lockOnTargetPosition.y = 0;
+            Quaternion lockOnTargetRotation = Quaternion.LookRotation(lockOnTargetPosition);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lockOnTargetRotation, lockonTime);
+
+            
+
+            lockOnTargetPosition = lockOnTarget.position - playerCamera.transform.position;
+            lockOnTargetPosition.Normalize();
+            lockOnTargetRotation = Quaternion.LookRotation(lockOnTargetPosition);
+            lockOnTargetRotation *= Quaternion.Euler(0, 0, cameraZTilt);
+            playerCamera.transform.localRotation = Quaternion.Slerp(playerCamera.transform.localRotation, lockOnTargetRotation, lockonTime);
+
+
+        } else
+        {
+            //transform.Rotate(Vector3.up * lookInput.x);
+            transform.rotation = Quaternion.Euler(0, rotationY, 0);
+            playerCamera.transform.localRotation = Quaternion.Euler(playerCameraTilted);
+        }
+
+        
+        playerCamera.fieldOfView = cameraFOV;
+
+       
     }
 
     private void applySway()
@@ -395,7 +436,7 @@ public class FPSController : MonoBehaviour
 
     private void BobOffset()
     {
-        speedCurve += Time.deltaTime * (isGrounded ? (moveInput.x + moveInput.y) * bobExaggeration : 1f) + 0.01f;
+        speedCurve += Time.deltaTime * (isGrounded ? (moveInput.x + moveInput.y) * (isWalking ? bobExaggeration : (bobExaggeration + 2)) : 1f) + 0.01f;
 
         bobPosition.x = (curveCos * bobLimit.x * (isGrounded ? 1 : 0)) - (moveInput.x * travelLimit.x);
         bobPosition.y = (curveSin * bobLimit.y) - (moveInput.y * travelLimit.y);
