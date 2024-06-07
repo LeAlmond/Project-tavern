@@ -11,18 +11,23 @@ using UnityEngine.Windows;
 [RequireComponent(typeof(PlayerInput))]
 public class FPSController : MonoBehaviour
 {
-    Rigidbody playerRigidbody;
+    
 
     #region Components
     [Header("Components")]
-        
+
+        Rigidbody playerRigidbody;
+
         public Camera playerCamera;
 
         public Transform playerHandheld;
 
         public PlayerInput input { get; private set; }
 
-        public PlayerAnimationScript playerAnimationScript { get; private set; }
+        public AnimationScript playerAnimationScript { get; private set; }
+
+        public WeaponScript PlayerWeaponScript { get; private set; }
+
         public Animator animator { get; private set; }
     #endregion
 
@@ -117,6 +122,14 @@ public class FPSController : MonoBehaviour
         multiplier = new Vector3(1, 2, 1);
 
         animator = playerCamera.GetComponentInChildren<Animator>();
+
+        playerAnimationScript = playerCamera.GetComponentInChildren<AnimationScript>();
+
+        playerAnimationScript.SetPlayer(gameObject);
+
+        PlayerWeaponScript = playerCamera.GetComponentInChildren<WeaponScript>();
+
+        PlayerWeaponScript.SetPlayer(gameObject);
     }
 
     // Start is called before the first frame update
@@ -475,7 +488,19 @@ public class FPSController : MonoBehaviour
             {
                 lockedOn = false;
             }
+
         }
        
     }
+
+    public void enableWeaponCollision()
+    {
+        PlayerWeaponScript.enableCollider();
+    }
+
+    public void disableWeaponCollision()
+    {
+        PlayerWeaponScript.disableCollider();
+    }
+
 }
